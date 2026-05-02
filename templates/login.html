@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Connexion - Anti-Raid</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body class="auth-page">
+    <main class="auth-panel">
+      <h1>Dashboard Anti-Raid</h1>
+      <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label>
+          Mot de passe
+          <input type="password" name="password" required autofocus>
+        </label>
+        <p class="login-note">Connexion protégée avec limitation des tentatives.</p>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% for category, message in messages %}
+            <p class="flash {{ category }}">{{ message }}</p>
+          {% endfor %}
+        {% endwith %}
+        <button type="submit">Connexion</button>
+      </form>
+    </main>
+  </body>
+</html>

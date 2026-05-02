@@ -1,1 +1,460 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ config.dashboard.site_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Discord</p>
+        <h1>{{ config.dashboard.site_name }}</h1>
+      </div>
+      <form method="post" action="{{ url_for('logout') }}">
+        <button class="ghost" type="submit">Déconnexion</button>
+      </form>
+    </header>
 
+    <main class="layout">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+          <p class="flash {{ category }}">{{ message }}</p>
+        {% endfor %}
+      {% endwith %}
+
+      <form method="post" class="panel tabs">
+        <input class="tab-radio" type="radio" id="tab-general" name="tab" checked>
+        <input class="tab-radio" type="radio" id="tab-antiraid" name="tab">
+        <input class="tab-radio" type="radio" id="tab-sanctions" name="tab">
+        <input class="tab-radio" type="radio" id="tab-tickets" name="tab">
+        <input class="tab-radio" type="radio" id="tab-embeds" name="tab">
+        <input class="tab-radio" type="radio" id="tab-access" name="tab">
+        <input class="tab-radio" type="radio" id="tab-security" name="tab">
+        <input class="tab-radio" type="radio" id="tab-appearance" name="tab">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+        <nav class="tab-list" aria-label="Onglets dashboard">
+          <label for="tab-general">Général</label>
+          <label for="tab-antiraid">Anti-raid</label>
+          <label for="tab-sanctions">Sanctions</label>
+          <label for="tab-tickets">Tickets</label>
+          <label for="tab-embeds">Embeds</label>
+          <label for="tab-access">WL & Owner</label>
+          <label for="tab-security">Sécurité</label>
+          <label for="tab-appearance">Apparence</label>
+        </nav>
+
+        <section class="tab-page general-page">
+          <h2>Général</h2>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <span>Préfixe</span>
+              <strong>{{ stats.prefix }}</strong>
+            </div>
+            <div class="stat-card">
+              <span>Token</span>
+              <strong>{{ stats.token }}</strong>
+            </div>
+            <div class="stat-card">
+              <span>Protections</span>
+              <strong>{{ stats.guards }}</strong>
+            </div>
+            <div class="stat-card">
+              <span>Tickets</span>
+              <strong>{{ stats.tickets }}</strong>
+            </div>
+          </div>
+
+          <div class="grid">
+            <label>
+              Token du bot
+              <input type="password" name="discord_token" placeholder="Colle le token ici pour le remplacer">
+            </label>
+            <label>
+              Préfixe commandes
+              <input name="prefix" value="{{ config.prefix }}" maxlength="4" required>
+            </label>
+            <label>
+              Nom du bot
+              <input name="bot_name" value="{{ config.bot_profile.name }}" maxlength="32" required>
+            </label>
+            <label>
+              Salon logs ID
+              <input name="log_channel_id" value="{{ config.anti_raid.log_channel_id or '' }}" placeholder="1234567890">
+            </label>
+            <label>
+              Propriétaire
+              <input name="owner_name" value="{{ config.dashboard.owner_name }}" required>
+            </label>
+            <label>
+              Lien support
+              <input name="support_url" value="{{ config.dashboard.support_url }}" placeholder="https://discord.gg/...">
+            </label>
+            <label>
+              Couleur dashboard
+              <input type="color" name="dashboard_theme_color" value="{{ config.dashboard.theme_color }}" required>
+            </label>
+            <label>
+              Couleur embeds
+              <input type="color" name="embed_color" value="{{ config.embed.color }}" required>
+            </label>
+            <label>
+              Logo / avatar URL
+              <input name="bot_avatar_url" value="{{ config.bot_profile.avatar_url }}" placeholder="https://.../avatar.png">
+            </label>
+            <label>
+              Bannière URL
+              <input name="bot_banner_url" value="{{ config.bot_profile.banner_url }}" placeholder="https://.../banner.png">
+            </label>
+            <label>
+              Statut
+              <select name="bot_status">
+                <option value="online" {% if config.bot_profile.status == 'online' %}selected{% endif %}>En ligne</option>
+                <option value="idle" {% if config.bot_profile.status == 'idle' %}selected{% endif %}>Inactif</option>
+                <option value="dnd" {% if config.bot_profile.status == 'dnd' %}selected{% endif %}>Ne pas déranger</option>
+                <option value="invisible" {% if config.bot_profile.status == 'invisible' %}selected{% endif %}>Invisible</option>
+              </select>
+            </label>
+            <label>
+              Type d'activité
+              <select name="bot_activity_type">
+                <option value="watching" {% if config.bot_profile.activity_type == 'watching' %}selected{% endif %}>Regarde</option>
+                <option value="playing" {% if config.bot_profile.activity_type == 'playing' %}selected{% endif %}>Joue à</option>
+                <option value="listening" {% if config.bot_profile.activity_type == 'listening' %}selected{% endif %}>Écoute</option>
+                <option value="competing" {% if config.bot_profile.activity_type == 'competing' %}selected{% endif %}>Participe à</option>
+              </select>
+            </label>
+            <label>
+              Texte d'activité
+              <input name="bot_activity_text" value="{{ config.bot_profile.activity_text }}" placeholder="le serveur">
+            </label>
+          </div>
+
+          <label class="spaced">
+            Bio du bot
+            <textarea name="bot_bio" required>{{ config.bot_profile.bio }}</textarea>
+          </label>
+          <label>
+            Message quand on ping le bot
+            <textarea name="bot_ping_message" required>{{ config.bot_profile.ping_message }}</textarea>
+          </label>
+          <label>
+            Note du dashboard
+            <textarea name="dashboard_announcement" required>{{ config.dashboard.announcement }}</textarea>
+          </label>
+
+          <div class="notice">
+            Après changement du token, redémarre `python bot.py`. Le nom, le logo, la bio et la bannière sont configurés depuis cet onglet.
+          </div>
+        </section>
+
+        <section class="tab-page antiraid-page">
+          <h2>Anti-raid</h2>
+          <div class="toggles">
+            <label class="toggle">
+              <input type="checkbox" name="enabled" {% if config.anti_raid.enabled %}checked{% endif %}>
+              Anti-raid actif
+            </label>
+            <label class="toggle">
+              <input type="checkbox" name="antilink" {% if config.anti_raid.antilink %}checked{% endif %}>
+              Antilink
+            </label>
+            <label class="toggle">
+              <input type="checkbox" name="antieveryone" {% if config.anti_raid.antieveryone %}checked{% endif %}>
+              Antieveryone
+            </label>
+            <label class="toggle">
+              <input type="checkbox" name="antiban" {% if config.anti_raid.antiban %}checked{% endif %}>
+              Antiban
+            </label>
+            <label class="toggle">
+              <input type="checkbox" name="antiunban" {% if config.anti_raid.antiunban %}checked{% endif %}>
+              Antiunban
+            </label>
+            <label class="toggle">
+              <input type="checkbox" name="antikick" {% if config.anti_raid.antikick %}checked{% endif %}>
+              Antikick
+            </label>
+            <label class="toggle">
+              <input type="checkbox" name="antiaddrole" {% if config.anti_raid.antiaddrole %}checked{% endif %}>
+              Antiaddrole
+            </label>
+            <label class="toggle">
+              <input type="checkbox" name="antidelrole" {% if config.anti_raid.antidelrole %}checked{% endif %}>
+              Antidelrole
+            </label>
+            <label class="toggle">
+              <input type="checkbox" name="antichannel" {% if config.anti_raid.antichannel %}checked{% endif %}>
+              Antichannel
+            </label>
+          </div>
+        </section>
+
+        <section class="tab-page sanctions-page">
+          <h2>Sanctions</h2>
+          <div class="notice">
+            Choisis l'action automatique appliquée à la personne qui ne respecte pas les protections anti-raid.
+          </div>
+          <div class="sanction-list">
+            {% for key, title, desc, first in [
+              ('antilink', 'Antilink', 'Publication de liens ou invitations non autorisées', 'derank'),
+              ('antieveryone', 'Antieveryone', 'Utilisation de @everyone ou @here', 'derank'),
+              ('antiban', 'Antiban', 'Bannissement non autorisé', 'ban'),
+              ('antiunban', 'Antiunban', 'Débannissement non autorisé', 'ban'),
+              ('antikick', 'Antikick', 'Expulsion non autorisée', 'kick'),
+              ('antiaddrole', 'Antiaddrole', 'Création de rôle non autorisée', 'derank'),
+              ('antidelrole', 'Antidelrole', 'Suppression de rôle non autorisée', 'derank'),
+              ('antichannel', 'Antichannel', 'Création ou suppression de salon non autorisée', 'derank')
+            ] %}
+              <label class="sanction-row">
+                <span>
+                  <strong>{{ title }}</strong>
+                  <small>{{ desc }}</small>
+                </span>
+                <select name="sanction_{{ key }}">
+                  <option value="derank" {% if config.sanctions[key] == 'derank' %}selected{% endif %}>Derank (retrait rôles)</option>
+                  <option value="kick" {% if config.sanctions[key] == 'kick' %}selected{% endif %}>Kick</option>
+                  <option value="ban" {% if config.sanctions[key] == 'ban' %}selected{% endif %}>Ban</option>
+                  <option value="none" {% if config.sanctions[key] == 'none' %}selected{% endif %}>Aucune</option>
+                </select>
+              </label>
+            {% endfor %}
+          </div>
+        </section>
+
+        <section class="tab-page tickets-page">
+          <h2>Tickets</h2>
+          <div class="toggles">
+            <label class="toggle">
+              <input type="checkbox" name="tickets_enabled" {% if config.tickets.enabled %}checked{% endif %}>
+              Système tickets actif
+            </label>
+            <label class="toggle">
+              <input type="checkbox" name="ticket_close_button" {% if config.tickets.close_button %}checked{% endif %}>
+              Bouton close
+            </label>
+            <label class="toggle">
+              <input type="checkbox" name="ticket_claim_button" {% if config.tickets.claim_button %}checked{% endif %}>
+              Bouton claim
+            </label>
+            <label class="toggle">
+              <input type="checkbox" name="ticket_claim_lock_channel" {% if config.tickets.claim_lock_channel %}checked{% endif %}>
+              Claim lock le salon
+            </label>
+            <label class="toggle">
+              <input type="checkbox" name="ticket_claim_hide_channel" {% if config.tickets.claim_hide_channel %}checked{% endif %}>
+              Claim cache le salon
+            </label>
+            <label class="toggle">
+              <input type="checkbox" name="ticket_autoclaim" {% if config.tickets.autoclaim %}checked{% endif %}>
+              Autoclaim
+            </label>
+            <label class="toggle">
+              <input type="checkbox" name="ticket_auto_delete_closed" {% if config.tickets.auto_delete_closed %}checked{% endif %}>
+              Suppression automatique des tickets fermes
+            </label>
+            <label class="toggle">
+              <input type="checkbox" name="ticket_auto_close_on_leave" {% if config.tickets.auto_close_on_leave %}checked{% endif %}>
+              Fermer si le membre quitte
+            </label>
+            <label class="toggle">
+              <input type="checkbox" name="ticket_transcript_dm" {% if config.tickets.transcript_dm %}checked{% endif %}>
+              Transcript MP
+            </label>
+          </div>
+          <div class="grid spaced">
+            <label>
+              Catégorie tickets ID
+              <input name="ticket_category_id" value="{{ config.tickets.category_id or '' }}" placeholder="1234567890">
+            </label>
+            <label>
+              Nom catégorie auto
+              <input name="ticket_category_name" value="{{ config.tickets.category_name }}" required>
+            </label>
+            <label>
+              Rôle support ID
+              <input name="support_role_id" value="{{ config.tickets.support_role_id or '' }}" placeholder="1234567890">
+            </label>
+            <label>
+              Salon panneau ticket ID
+              <input name="ticket_panel_channel_id" value="{{ config.tickets.panel_channel_id or '' }}" placeholder="1234567890">
+            </label>
+            <label>
+              Nom des salons tickets
+              <input name="ticket_channel_name_format" value="{{ config.tickets.channel_name_format }}" required>
+            </label>
+            <label>
+              Couleur embed ticket
+              <input type="color" name="ticket_embed_color" value="{{ config.tickets.embed_color }}" required>
+            </label>
+            <label>
+              Type bouton/selecteur
+              <select name="ticket_panel_type">
+                <option value="button" {% if config.tickets.panel_type == 'button' %}selected{% endif %}>Bouton</option>
+                <option value="selector" {% if config.tickets.panel_type == 'selector' %}selected{% endif %}>Selecteur</option>
+              </select>
+            </label>
+            <label>
+              Nombre maximum de tickets par personne
+              <input type="number" name="ticket_max_per_user" min="1" max="25" value="{{ config.tickets.max_per_user }}" required>
+            </label>
+            <label>
+              Titre panneau
+              <input name="ticket_panel_title" value="{{ config.tickets.panel_title }}" required>
+            </label>
+          </div>
+          <div class="grid spaced">
+            <label>
+              Roles requis ID
+              <textarea name="ticket_required_role_ids" placeholder="Un ID par ligne">{{ config.tickets.required_role_ids | join('\n') }}</textarea>
+            </label>
+            <label>
+              Roles interdits ID
+              <textarea name="ticket_forbidden_role_ids" placeholder="Un ID par ligne">{{ config.tickets.forbidden_role_ids | join('\n') }}</textarea>
+            </label>
+          </div>
+          <label class="spaced">
+            Options du selecteur
+            <textarea name="ticket_options" placeholder="Emoji | Nom | Description">{% for option in config.tickets.options %}{{ option.emoji }} | {{ option.label }} | {{ option.description }}{% if not loop.last %}
+{% endif %}{% endfor %}</textarea>
+          </label>
+          <label class="spaced">
+            Description panneau
+            <textarea name="ticket_panel_description" required>{{ config.tickets.panel_description }}</textarea>
+          </label>
+          <label>
+            Message d'accueil ticket
+            <textarea name="ticket_welcome_message" required>{{ config.tickets.welcome_message }}</textarea>
+          </label>
+          <button class="secondary" type="submit" name="action" value="send_ticket_panel">Envoyer panneau ticket</button>
+        </section>
+
+        <section class="tab-page embeds-page">
+          <h2>Embed</h2>
+          <div class="grid">
+            <label>
+              Salon cible ID
+              <input name="embed_target_channel_id" value="{{ config.embed.target_channel_id or '' }}" placeholder="1234567890">
+            </label>
+            <label>
+              Titre
+              <input name="embed_title" value="{{ config.embed.title }}" required>
+            </label>
+            <label>
+              Couleur embeds
+              <input type="color" value="{{ config.embed.color }}" disabled>
+            </label>
+            <label>
+              Footer
+              <input name="embed_footer" value="{{ config.embed.footer }}">
+            </label>
+          </div>
+          <label class="spaced">
+            Description
+            <textarea name="embed_description" required>{{ config.embed.description }}</textarea>
+          </label>
+          <div class="embed-preview">
+            <strong>{{ config.embed.title }}</strong>
+            <p>{{ config.embed.description }}</p>
+            <small>{{ config.embed.footer }}</small>
+          </div>
+          <button class="secondary" type="submit" name="action" value="send_embed">Envoyer embed</button>
+        </section>
+
+        <section class="tab-page access-page">
+          <h2>WL & Owner</h2>
+          <div class="notice">
+            Les owners peuvent utiliser les commandes sensibles. Les utilisateurs whitelist ne sont pas derank par les protections automatiques.
+          </div>
+          <div class="access-grid spaced">
+            <div class="access-card">
+              <h3>Owners</h3>
+              <div class="id-list">
+                {% for item in config.access.owners %}
+                  <span>{{ item }}</span>
+                {% else %}
+                  <em>Aucun owner configure.</em>
+                {% endfor %}
+              </div>
+              <label>
+                Ajouter un owner ID
+                <input name="owner_add_id" placeholder="1234567890">
+              </label>
+              <label>
+                Retirer un owner ID
+                <input name="owner_remove_id" placeholder="1234567890">
+              </label>
+            </div>
+            <div class="access-card">
+              <h3>Whitelist</h3>
+              <div class="id-list">
+                {% for item in config.access.whitelist %}
+                  <span>{{ item }}</span>
+                {% else %}
+                  <em>Aucun utilisateur whitelist.</em>
+                {% endfor %}
+              </div>
+              <label>
+                Ajouter en whitelist ID
+                <input name="whitelist_add_id" placeholder="1234567890">
+              </label>
+              <label>
+                Retirer de la whitelist ID
+                <input name="whitelist_remove_id" placeholder="1234567890">
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <section class="tab-page security-page">
+          <h2>Sécurité</h2>
+          <div class="security-list">
+            <div>
+              <strong>Protection connexion</strong>
+              <span>5 tentatives maximum avant verrouillage temporaire.</span>
+            </div>
+            <div>
+              <strong>Session</strong>
+              <span>Expiration automatique configurable.</span>
+            </div>
+            <div>
+              <strong>Formulaires</strong>
+              <span>Jeton de sécurité actif sur la connexion et l'enregistrement.</span>
+            </div>
+          </div>
+          <div class="grid spaced">
+            <label>
+              Nouveau mot de passe dashboard
+              <input type="password" name="dashboard_password" placeholder="Laisser vide pour ne pas changer">
+            </label>
+            <label>
+              Expiration session (minutes)
+              <input type="number" name="session_timeout_minutes" min="15" max="1440" value="{{ config.dashboard.session_timeout_minutes }}" required>
+            </label>
+          </div>
+        </section>
+
+        <section class="tab-page appearance-page">
+          <h2>Apparence</h2>
+          <div class="grid">
+            <label>
+              Nom du dashboard
+              <input name="site_name" value="{{ config.dashboard.site_name }}" required>
+            </label>
+            <label>
+              Couleur principale
+              <input type="color" value="{{ config.dashboard.theme_color }}" disabled>
+            </label>
+          </div>
+          <div class="notice">
+            Les couleurs principales sont maintenant configurées dans l'onglet Général.
+          </div>
+        </section>
+
+        <button type="submit" name="action" value="save">Enregistrer</button>
+      </form>
+    </main>
+  </body>
+</html>
