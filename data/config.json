@@ -1,1 +1,109 @@
-
+{
+  "prefix": ".",
+  "bot_profile": {
+    "name": "MKL TEST",
+    "avatar_url": "https://cdn.discordapp.com/avatars/1425562222251479222/addfd3abf8b706749a0600a4f3d76dc1.png?size=1024",
+    "banner_url": "",
+    "bio": "Le bouclier de votre serveur Discord.",
+    "ping_message": "Me ping pas Rajel",
+    "activity_type": "listening",
+    "activity_text": "Created By MKL",
+    "status": "dnd"
+  },
+  "anti_raid": {
+    "enabled": true,
+    "antilink": true,
+    "antieveryone": true,
+    "antiban": true,
+    "antiunban": true,
+    "antikick": true,
+    "antiaddrole": true,
+    "antidelrole": true,
+    "antichannel": true,
+    "log_channel_id": "1500162848322752562"
+  },
+  "sanctions": {
+    "antilink": "derank",
+    "antieveryone": "kick",
+    "antiban": "ban",
+    "antiunban": "ban",
+    "antikick": "kick",
+    "antiaddrole": "derank",
+    "antidelrole": "derank",
+    "antichannel": "derank"
+  },
+  "access": {
+    "owners": [
+      "1425562222251479222"
+    ],
+    "whitelist": [],
+    "blacklist": [],
+    "command_permissions": {
+      "clear": []
+    }
+  },
+  "tickets": {
+    "enabled": true,
+    "category_id": "1495771148368216074",
+    "category_name": "Tickets",
+    "support_role_id": null,
+    "required_role_ids": [],
+    "forbidden_role_ids": [],
+    "panel_channel_id": "1498042759016353863",
+    "channel_name_format": "ticket-{user}",
+    "panel_title": "Support",
+    "panel_description": "Clique sur le bouton pour ouvrir un ticket.",
+    "welcome_message": "Merci d'avoir ouvert un ticket. Explique ton probleme clairement.",
+    "embed_color": "#69d6a2",
+    "panel_type": "selector",
+    "options": [
+      {
+        "label": "Cat\u00e9gorie 1",
+        "emoji": "\u2705",
+        "description": "",
+        "category_id": "1495788817821470892",
+        "log_channel_id": "",
+        "mentioned_role_ids": [
+          "1495830715407929566"
+        ],
+        "access_role_ids": [
+          "1495830715407929566"
+        ],
+        "open_message": "Merci d'avoir contacte le support.\nDecrivez votre probleme puis attendez une reponse."
+      }
+    ],
+    "max_per_user": 1,
+    "close_button": true,
+    "claim_button": true,
+    "claim_lock_channel": false,
+    "claim_hide_channel": false,
+    "autoclaim": false,
+    "auto_delete_closed": true,
+    "auto_close_on_leave": true,
+    "transcript_dm": false
+  },
+  "embed": {
+    "title": "test",
+    "description": "Test Embed bot salut",
+    "color": "#69d6a2",
+    "footer": "Anti-Raid Control",
+    "target_channel_id": null,
+    "thumbnail": "",
+    "image": "",
+    "author": "",
+    "url": "",
+    "timestamp": false,
+    "message": "",
+    "fields": [],
+    "button_label": "",
+    "button_url": ""
+  },
+  "dashboard": {
+    "site_name": "MKL DASHBOARD",
+    "owner_name": "MKL",
+    "support_url": "",
+    "announcement": "Dashboard op\u00e9rationnel.",
+    "theme_color": "#f50025",
+    "session_timeout_minutes": 360
+  }
+}
